@@ -256,31 +256,4 @@ async def get_all_topics(self, user_id, channel_id):
 db = Database(
 Config.DATABASE_URI,
 Config.DATABASE_NAME
-    )       return await self.chl.delete_many({"user_id": int(user_id), "chat_id": int(chat_id)})
-    
-    async def get_channel_details(self, user_id: int, chat_id: int):
-       return await self.chl.find_one({"user_id": int(user_id), "chat_id": int(chat_id)})
-       
-    async def get_user_channels(self, user_id: int):
-       channels = self.chl.find({"user_id": int(user_id)})
-       return [channel async for channel in channels]
-     
-    async def get_filters(self, user_id):
-       filters = []
-       filter = (await self.get_configs(user_id))['filters']
-       for k, v in filter.items():
-          if v == False:
-            filters.append(str(k))
-       return filters
-              
-    async def add_frwd(self, user_id):
-       return await self.nfy.insert_one({'user_id': int(user_id)})
-    
-    async def rmve_frwd(self, user_id=0, all=False):
-       data = {} if all else {'user_id': int(user_id)}
-       return await self.nfy.delete_many(data)
-    
-    async def get_all_frwd(self):
-       return self.nfy.find({})
-     
-db = Database(Config.DATABASE_URI, Config.DATABASE_NAME)
+    )       
