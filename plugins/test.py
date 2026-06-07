@@ -193,7 +193,7 @@ async def resetall(bot, message):
   ERRORS = []
   async for user in users:
       user_id = user['id']
-      default = await get_configs(user_id)
+      default = await db.get_configs(user_id)
       default['db_uri'] = None
       total += 1
       if total %10 == 0:
