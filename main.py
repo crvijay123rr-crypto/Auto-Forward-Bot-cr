@@ -7,7 +7,9 @@ from aiohttp import web
 from pyrogram import idle
 from bot import Bot
 
-# Calculate uptime
+# Logging Setup
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
 START_TIME = time.time()
 
 def get_uptime():
@@ -20,63 +22,13 @@ def get_uptime():
 async def web_server():
     async def handle(request):
         uptime = get_uptime()
+        # course_hub2bot Branding
         html_content = f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Bot Status</title>
-            <style>
-                body {{
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                    background-color: #f0f2f5;
-                    display: flex;
-                    justify-content: center;
-                    align-items: center;
-                    height: 100vh;
-                    margin: 0;
-                }}
-                .container {{
-                    background-color: white;
-                    padding: 40px;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                    text-align: center;
-                    max-width: 400px;
-                    width: 100%;
-                }}
-                h1 {{
-                    color: #1a73e8;
-                    margin-bottom: 20px;
-                }}
-                p {{
-                    color: #555;
-                    font-size: 18px;
-                    margin: 10px 0;
-                }}
-                .status-active {{
-                    color: #28a745;
-                    font-weight: bold;
-                }}
-                .footer {{
-                    margin-top: 30px;
-                    font-size: 14px;
-                    color: #888;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>Bot is Running</h1>
-                <p>Status: <span class="status-active">Active</span></p>
-                <p>Uptime: {uptime}</p>
-                <div class="footer">
-                    Powered by Auto Forward Bot V2
-                </div>
-            </div>
-        </body>
-        </html>
+        <html><body>
+            <h1>course_hub2bot is Running</h1>
+            <p>Status: Active</p>
+            <p>Uptime: {uptime}</p>
+        </body></html>
         """
         return web.Response(text=html_content, content_type='text/html')
 
@@ -90,11 +42,11 @@ async def web_server():
     logging.info(f"Web server started on port {port}")
 
 async def ping_server():
+    # Ping URL lein (External URL environment variable se, agar ho)
+    url = os.environ.get('RENDER_EXTERNAL_URL', 'http://127.0.0.1:8080')
     while True:
-        await asyncio.sleep(300) # Ping every 5 minutes
+        await asyncio.sleep(300) 
         try:
-            port = int(os.environ.get('PORT', 8080))
-            url = f'http://127.0.0.1:{port}'
             async with aiohttp.ClientSession() as session:
                 async with session.get(url) as resp:
                     logging.info(f"Self-ping to {url}: Status {resp.status}")
@@ -104,15 +56,18 @@ async def ping_server():
 async def main():
     bot = Bot()
     await bot.start()
-
-    # Start web server
+    
+    # Web server aur ping start karein
     await web_server()
-
-    # Start self-ping task
     asyncio.create_task(ping_server())
 
+    logging.info("--- course_hub2bot Started Successfully ---")
     await idle()
     await bot.stop()
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        logging.info("Bot Stopped!")
+        
