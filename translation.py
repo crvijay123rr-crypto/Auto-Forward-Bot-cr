@@ -9,7 +9,6 @@ class Translation(object):
 ɪ ᴄᴀɴ ғᴏʀᴡᴀʀᴅ ᴀʟʟ ᴍᴇssᴀɢᴇ ғʀᴏᴍ ᴏɴᴇ ᴄʜᴀɴɴᴇʟ ᴛᴏ ᴀɴᴏᴛʜᴇʀ ᴄʜᴀɴɴᴇʟ</i> <b>➜ ᴡɪᴛʜ ᴍᴏʀᴇ ғᴇᴀᴛᴜʀᴇs.
 ᴄʟɪᴄᴋ ʜᴇʟᴘ ʙᴜᴛᴛᴏɴ ᴛᴏ ᴋɴᴏᴡ ᴍᴏʀᴇ ᴀʙᴏᴜᴛ ᴍᴇ</b>"""
 
-
   HELP_TXT = """<b><u>🔆 HELP</b></u>
 
 <u>**📚 Available commands:**</u>
@@ -20,8 +19,8 @@ class Translation(object):
 ⏣ __/reset - reset your settings__</b>
 
 <b><u>💢 Features:</b></u>
-<b>► __Forward message from public channel to your channel without admin permission. if the channel is private need admin permission__
-► __Forward message from private channel to your channel by using userbot(user must be member in there)__
+<b>► __Forward message from public channel to your channel without admin permission.__
+► __Forward message from private channel to your channel by using userbot.__
 ► __custom caption__
 ► __custom button__
 ► __support restricted chats__
@@ -39,10 +38,10 @@ class Translation(object):
   
   ABOUT_TXT = """<b>╭──────❰ 🤖 Bot Details ❱──────〄
 │ 
-│ 🤖 Mʏ Nᴀᴍᴇ : <a href=https://t.me/devganbot>Dev Gagan Botᴛ</a>
-│ 👨‍💻 ᴅᴇᴠᴘʟᴏᴇʀ : <a href=https://t.me/dev_gagan>Team SPY</a>
-│ 🤖 ᴜᴘᴅᴀᴛᴇ  : <a href=https://t.me/dev_gagan>devgagan</a>
-│ 📡 ʜᴏsᴛ ᴏɴ : <a href=https://devgagan.in/>Dev Gagan Host</a>
+│ 🤖 Mʏ Nᴀᴍᴇ : <a href=https://t.me/course_hub2bot>course_hub2bot</a>
+│ 👨‍💻 ᴅᴇᴠᴘʟᴏᴇʀ : <a href=https://t.me/course_hub2bot>Team SPY</a>
+│ 🤖 ᴜᴘᴅᴀᴛᴇ  : <a href=https://t.me/course_hub2bot>course_hub2bot</a>
+│ 📡 ʜᴏsᴛ ᴏɴ : <a href=https://course_hub2bot.in/>course_hub2bot Host</a>
 │ 🗣️ ʟᴀɴɢᴜᴀɢᴇ  : ᴘʏᴛʜᴏɴ 3 
 {python_version}
 │ 📚 ʟɪʙʀᴀʀʏ  : ᴘʏʀᴏɢʀᴀᴍ  
@@ -59,17 +58,17 @@ class Translation(object):
   
   FROM_MSG = "<b>❪ SET SOURCE CHAT ❫\n\nForward the last message or last message link of source chat.\nType <code>me</code> or <code>saved</code> to forward from Saved Messages.\n/cancel - cancel this process</b>"
   TO_MSG = "<b>❪ CHOOSE TARGET CHAT ❫\n\nChoose your target chat from the given buttons.\n/cancel - Cancel this process</b>"
-  SAVED_MSG_MODE = "<b>❪ SELECT MODE ❫\n\nChoose the forwarding mode for Saved Messages:\n\n1. <code>batch</code> - Forward existing messages (you can set a limit or choose All).\n2. <code>live</code> - Forward existing messages and keep waiting for new ones (Continuous).</b>"
-  SAVED_MSG_LIMIT = "<b>❪ NUMBER OF MESSAGES ❫\n\nHow many messages do you want to forward from Saved Messages?\nEnter a number (e.g., 100) or type <code>all</code> to forward everything.</b>"
-  SKIP_MSG = "<b>❪ SET MESSAGE SKIPING NUMBER ❫</b>\n\n<b>Skip the message as much as you enter the number and the rest of the message will be forwarded\nDefault Skip Number =</b> <code>0</code>\n<code>eg: You enter 0 = 0 message skiped\n You enter 5 = 5 message skiped</code>\n/cancel <b>- cancel this process</b>"
-  CANCEL = "<b>Process Cancelled Succefully !</b>"
+  SAVED_MSG_MODE = "<b>❪ SELECT MODE ❫\n\nChoose the forwarding mode for Saved Messages:\n\n1. <code>batch</code> - Forward existing messages.\n2. <code>live</code> - Forward existing messages and keep waiting for new ones.</b>"
+  SAVED_MSG_LIMIT = "<b>❪ NUMBER OF MESSAGES ❫\n\nHow many messages do you want to forward from Saved Messages?\nEnter a number or type <code>all</code>.</b>"
+  SKIP_MSG = "<b>❪ SET MESSAGE SKIPING NUMBER ❫</b>\n\n<b>Skip the message as much as you enter the number.\nDefault Skip Number =</b> <code>0</code>\n/cancel <b>- cancel this process</b>"
+  CANCEL = "<b>Process Cancelled Successfully!</b>"
   BOT_DETAILS = "<b><u>📄 BOT DETAILS</b></u>\n\n<b>➣ NAME:</b> <code>{}</code>\n<b>➣ BOT ID:</b> <code>{}</code>\n<b>➣ USERNAME:</b> @{}"
   USER_DETAILS = "<b><u>📄 USERBOT DETAILS</b></u>\n\n<b>➣ NAME:</b> <code>{}</code>\n<b>➣ USER ID:</b> <code>{}</code>\n<b>➣ USERNAME:</b> @{}"  
          
   TEXT = """<b>╭────❰ <u>Forwarded Status</u> ❱────❍
 ┃
 ┣⊸<b>🕵 ғᴇᴄʜᴇᴅ ᴍsɢ :</b> <code>{}</code>
-┣⊸<b>✅ sᴜᴄᴄᴇғᴜʟʟʏ ғᴡᴅ :</b> <code>{}</code>
+┣⊸<b>✅ sᴜᴄᴄᴇ𝟾ғᴜʟʟʏ ғᴡᴅ :</b> <code>{}</code>
 ┣⊸<b>👥 ᴅᴜᴘʟɪᴄᴀᴛᴇ ᴍsɢ :</b> <code>{}</code>
 ┣⊸<b>🗑️ ᴅᴇʟᴇᴛᴇᴅ ᴍsɢ :</b> <code>{}</code>
 ┣⊸<b>🪆 sᴋɪᴘᴘᴇᴅ ᴍsɢ :</b> <code>{}</code>
@@ -109,7 +108,8 @@ class Translation(object):
 <b>★ TO CHANNEL:</b> `{to_chat}`
 <b>★ SKIP MESSAGES:</b> `{skip}`
 
-<i>° [{botname}](t.me/{botuname}) must be admin in **TARGET CHAT**</i> (`{to_chat}`)
-<i>° If the **SOURCE CHAT** is private your userbot must be member or your bot must be admin in there also</b></i>
+<i>° [{botname}](t.me/{botuname}) must be admin in **TARGET CHAT**</i>
+<i>° If the **SOURCE CHAT** is private your userbot must be member.</i>
 
 <b>If the above is checked then the yes button can be clicked</b>"""
+  
