@@ -18,9 +18,7 @@ class Bot(Client):
             Config.BOT_SESSION,
             api_hash=Config.API_HASH,
             api_id=Config.API_ID,
-            plugins={
-                "root": "plugins"
-            },
+            plugins={"root": "plugins"},
             workers=50,
             bot_token=Config.BOT_TOKEN
         )
@@ -29,29 +27,34 @@ class Bot(Client):
     async def start(self):
         await super().start()
         me = await self.get_me()
-        logging.info(f"{me.first_name} with for pyrogram v{__version__} (Layer {layer}) started on @{me.username}.")
+        
         self.id = me.id
         self.username = me.username
         self.first_name = me.first_name
-        self.set_parse_mode(ParseMode.DEFAULT)
-        text = "**๏[-ิ_•ิ]๏ bot restarted !**"
-        logging.info(text)
+        
+        # Parse Mode HTML set karna hamesha safe rehta hai
+        self.set_parse_mode(ParseMode.HTML)
+        
+        logging.info(f"{me.first_name} (v{__version__}) started on @{me.username}.")
 
-        # Check if database URI is default broken one
-        if "mongodb+srv://chhjgjkkjhkjhkjh@cluster0.xowzpr4.mongodb.net/" in Config.DATABASE_URI:
-             logging.error("You have not set the DATABASE environment variable. The bot will not function correctly.")
+        # Database check
+        if "mongodb+srv://" not in Config.DATABASE_URI or "chhjgjkkjhkjhkjh" in Config.DATABASE_URI:
+             logging.error("DATABASE_URI is not set or using default. Bot might not work.")
              return
 
+        # Restart Notification
+        text = "<b>๏[-ิ_•ิ]๏ bot restarted!</b>"
         try:
             success = failed = 0
             users = await db.get_all_frwd()
+            # Users ko iterate karte waqt safe handling
             async for user in users:
                chat_id = user['user_id']
                try:
                   await self.send_message(chat_id, text)
                   success += 1
                except FloodWait as e:
-                  await asyncio.sleep(e.value + 1)
+                  await asyncio.sleep(e.value)
                   await self.send_message(chat_id, text)
                   success += 1
                except Exception:
@@ -59,13 +62,11 @@ class Bot(Client):
 
             if (success + failed) != 0:
                await db.rmve_frwd(all=True)
-               logging.info(f"Restart message status"
-                     f"success: {success}"
-                     f"failed: {failed}")
+               logging.info(f"Restart broadcast: {success} success, {failed} failed.")
         except Exception as e:
-            logging.error(f"Failed to send restart messages or connect to DB: {e}")
+            logging.error(f"Error during bot start: {e}")
 
     async def stop(self, *args):
-        msg = f"@{self.username} stopped. Bye."
         await super().stop()
-        logging.info(msg)
+        logging.info(f"@{self.username} stopped.")
+        
