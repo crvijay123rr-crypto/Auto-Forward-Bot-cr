@@ -11,7 +11,6 @@ from pyrogram.errors.exceptions.bad_request_400 import ChannelInvalid, ChatAdmin
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery, KeyboardButton, ReplyKeyboardMarkup, ReplyKeyboardRemove
  
 #===================Run Function===================#
-
 @Client.on_message(filters.private & filters.command(["fwd", "forward"]))
 async def run(bot, message):
     buttons = []
@@ -19,112 +18,78 @@ async def run(bot, message):
     user_id = message.from_user.id
     _bot = await db.get_bot(user_id)
     if not _bot:
-      return await message.reply("<code>You didn't added any bot. Please add a bot using /settings !</code>")
+        return await message.reply("<code>You didn't added any bot. Please add a bot using /settings !</code>")
+    
     channels = await db.get_user_channels(user_id)
     if not channels:
-       return await message.reply_text("please set a to channel in /settings before forwarding")
+        return await message.reply_text("Please set a target channel in /settings before forwarding.")
+    
+    # 1. Target Channel Selection
     if len(channels) > 1:
-       for channel in channels:
-          buttons.append([KeyboardButton(f"{channel['title']}")])
-          btn_data[channel['title']] = channel['chat_id']
-       buttons.append([KeyboardButton("cancel")]) 
-       _toid = await bot.ask(message.chat.id, Translation.TO_MSG.format(_bot['name'], _bot['username']), reply_markup=ReplyKeyboardMarkup(buttons, one_time_keyboard=True, resize_keyboard=True))
-       if _toid.text.startswith(('/', 'cancel')):
-          return await message.reply_text(Translation.CANCEL, reply_markup=ReplyKeyboardRemove())
-       to_title = _toid.text
-       toid = btn_data.get(to_title)
-       if not toid:
-          return await message.reply_text("wrong channel choosen !", reply_markup=ReplyKeyboardRemove())
+        for channel in channels:
+            buttons.append([KeyboardButton(f"{channel['title']}")])
+            btn_data[channel['title']] = channel['chat_id']
+        buttons.append([KeyboardButton("cancel")]) 
+        _toid = await bot.ask(message.chat.id, Translation.TO_MSG.format(_bot['name'], _bot['username']), reply_markup=ReplyKeyboardMarkup(buttons, one_time_keyboard=True, resize_keyboard=True))
+        if _toid.text.lower() in ['cancel', '/cancel']:
+            return await message.reply_text(Translation.CANCEL, reply_markup=ReplyKeyboardRemove())
+        to_title = _toid.text
+        toid = btn_data.get(to_title)
+        if not toid:
+            return await message.reply_text("Wrong channel chosen!", reply_markup=ReplyKeyboardRemove())
     else:
-       toid = channels[0]['chat_id']
-       to_title = channels[0]['title']
+        toid = channels[0]['chat_id']
+        to_title = channels[0]['title']
+
+    # 2. Source Input
     fromid = await bot.ask(message.chat.id, Translation.FROM_MSG, reply_markup=ReplyKeyboardRemove())
     if fromid.text and fromid.text.startswith('/'):
-        await message.reply(Translation.CANCEL)
-        return 
+        return await message.reply(Translation.CANCEL)
 
     continuous = False
-
-    # Handle "Saved Messages" input
+    
+    # Validation: Saved Messages
     if fromid.text and fromid.text.lower() in ["me", "saved"]:
         if _bot.get('is_bot'):
-            return await message.reply("<b>You cannot forward from Saved Messages using a Bot. Please add a Userbot session via /settings to use this feature.</b>")
-
-        chat_id = "me"
-        title = "Saved Messages"
-
-        # Ask for mode: Batch vs Live
+            return await message.reply("<b>You cannot forward from Saved Messages using a Bot. Please add a Userbot session via /settings.</b>")
+        chat_id, title = "me", "Saved Messages"
+        # Mode Selection
         mode_msg = await bot.ask(message.chat.id, Translation.SAVED_MSG_MODE)
-        if mode_msg.text.startswith('/'):
-             await message.reply(Translation.CANCEL)
-             return
+        continuous = "live" in mode_msg.text.lower() or "2" in mode_msg.text
+        last_msg_id = 1000000 if continuous else 500 # Default limit
 
-        if "live" in mode_msg.text.lower() or "2" in mode_msg.text:
-            continuous = True
-            last_msg_id = 1000000 # Just a high number, but loop will be infinite/wait
-        else:
-            limit_msg = await bot.ask(message.chat.id, Translation.SAVED_MSG_LIMIT)
-            if limit_msg.text.startswith('/'):
-                 await message.reply(Translation.CANCEL)
-                 return
-
-            if limit_msg.text.lower() == "all":
-                 last_msg_id = 0 # 0 usually means no limit in some contexts, but let's use a very high number if iter logic relies on it?
-                 # iter_messages: if limit > 0, it iterates until limit.
-                 # If we want ALL, we should use a high number or verify how 0 is handled.
-                 # In test.py: new_diff = min(200, limit - current).
-                 # If limit is 0, 0-0 = 0. new_diff <= 0. Return.
-                 # So we need a high number.
-                 last_msg_id = 10000000
-            elif not limit_msg.text.isdigit():
-                 await message.reply("Invalid number.")
-                 return
-            else:
-                 last_msg_id = int(limit_msg.text) # Using last_msg_id as limit/count
-
+    # Validation: Link Input
     elif fromid.text and not fromid.forward_date:
         regex = re.compile(r"(https://)?(t\.me/|telegram\.me/|telegram\.dog/)(c/)?(\d+|[a-zA-Z_0-9]+)/(\d+)$")
         match = regex.match(fromid.text.replace("?single", ""))
         if not match:
-            return await message.reply('Invalid link')
-        chat_id = match.group(4)
-        last_msg_id = int(match.group(5))
-        if chat_id.isnumeric():
-            chat_id  = int(("-100" + chat_id))
-    elif fromid.forward_from_chat.type in [enums.ChatType.CHANNEL]:
+            return await message.reply('Invalid link format.')
+        chat_id, last_msg_id = match.group(4), int(match.group(5))
+        if chat_id.isnumeric(): chat_id = int("-100" + chat_id)
+        title = "Source Chat"
+
+    # Validation: Forwarded Message
+    elif fromid.forward_from_chat:
         last_msg_id = fromid.forward_from_message_id
         chat_id = fromid.forward_from_chat.username or fromid.forward_from_chat.id
-        if last_msg_id == None:
-           return await message.reply_text("**This may be a forwarded message from a group and sended by anonymous admin. instead of this please send last message link from group**")
+        title = fromid.forward_from_chat.title
     else:
-        await message.reply_text("**invalid !**")
-        return 
+        return await message.reply_text("**Invalid source provided!**")
 
-    if chat_id != "me":
-        try:
-            title = (await bot.get_chat(chat_id)).title
-      #  except ChannelInvalid:
-            #return await fromid.reply("**Given source chat is copyrighted channel/group. you can't forward messages from there**")
-        except (PrivateChat, ChannelPrivate, ChannelInvalid):
-            title = "private" if fromid.text else fromid.forward_from_chat.title
-        except (UsernameInvalid, UsernameNotModified):
-            return await message.reply('Invalid Link specified.')
-        except Exception as e:
-            return await message.reply(f'Errors - {e}')
-
+    # 3. Skip Number Validation
     skipno = await bot.ask(message.chat.id, Translation.SKIP_MSG)
-    if skipno.text.startswith('/'):
-        await message.reply(Translation.CANCEL)
-        return
+    if not skipno.text.isdigit() and skipno.text != '0':
+        return await message.reply("Invalid number. Please enter a valid digit.")
+
     forward_id = f"{user_id}-{skipno.id}"
-    buttons = [[
-        InlineKeyboardButton('Yes', callback_data=f"start_public_{forward_id}"),
-        InlineKeyboardButton('No', callback_data="close_btn")
-    ]]
-    reply_markup = InlineKeyboardMarkup(buttons)
+    
+    # 4. Final Confirmation
     await message.reply_text(
         text=Translation.DOUBLE_CHECK.format(botname=_bot['name'], botuname=_bot['username'], from_chat=title, to_chat=to_title, skip=skipno.text),
-        disable_web_page_preview=True,
-        reply_markup=reply_markup
+        reply_markup=InlineKeyboardMarkup([[
+            InlineKeyboardButton('Yes', callback_data=f"start_public_{forward_id}"),
+            InlineKeyboardButton('No', callback_data="close_btn")
+        ]])
     )
     STS(forward_id).store(chat_id, toid, int(skipno.text), int(last_msg_id), continuous=continuous)
+ 
