@@ -43,13 +43,16 @@ async def settings_query(bot, query):
        "<b><u>My Bots</b></u>\n\n<b>You can manage your bots in here</b>",
        reply_markup=InlineKeyboardMarkup(buttons))
   
-  elif type=="addbot":
+    elif type=="addbot":
      await query.message.delete()
-     bot = await CLIENT.add_bot(bot, query)
-     if bot != True: return
-     await query.message.reply_text(
-        "<b>bot token successfully added to db</b>",
-        reply_markup=InlineKeyboardMarkup(buttons))
+     # Yahan print lagayein aur check karein kya return ho raha hai
+     result = await CLIENT.add_bot(bot, query)
+     print(f"DEBUG: Result of add_bot is {result}") 
+     if result != True: 
+        await query.message.reply_text(f"❌ Error adding bot: {result}")
+        return
+     await query.message.reply_text("✅ Bot token successfully added!")
+       
   
   elif type=="adduserbot":
      await query.message.delete()
